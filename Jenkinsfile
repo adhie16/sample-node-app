@@ -32,8 +32,8 @@ pipeline {
             }
         }
         stage('Deploy to Server') {
-            //steps {
-                //script {
+            steps {
+                script {
                     // Build and push Docker image to a registry (if needed)
                   //  docker.withRegistry('https://your-docker-registry/', 'docker-credentials-id') {
                     //    def app = docker.image("sample-node-app:${env.BUILD_ID}")
