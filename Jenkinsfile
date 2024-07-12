@@ -32,13 +32,13 @@ pipeline {
             }
         }
         stage('Deploy to Server') {
-            steps {
-                script {
+            //steps {
+                //script {
                     // Build and push Docker image to a registry (if needed)
-                    docker.withRegistry('https://your-docker-registry/', 'docker-credentials-id') {
-                        def app = docker.image("sample-node-app:${env.BUILD_ID}")
-                        app.push()
-                    }
+                  //  docker.withRegistry('https://your-docker-registry/', 'docker-credentials-id') {
+                    //    def app = docker.image("sample-node-app:${env.BUILD_ID}")
+                      //  app.push()
+                    //}
 
                     // SSH ke server dan deploy aplikasi
                     sshagent(credentials: ['bf91efde-9f23-4abf-af9d-720fd184a424']) {
