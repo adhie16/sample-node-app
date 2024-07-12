@@ -2,38 +2,32 @@ pipeline {
     agent any
 
     environment {
-        imageName = "sample-node-app"
-        remoteServer = "cws@192.168.5.7"
-        sshCredentials = 'bf91efde-9f23-4abf-af9d-720fd184a424'  // Ganti dengan ID kredensial SSH yang ditambahkan ke Jenkins
+        // Sesuaikan dengan nama credentials SSH yang sudah ditambahkan di Jenkins
+        SSH_CREDENTIALS = 'bf91efde-9f23-4abf-af9d-720fd184a424'
+        // Sesuaikan dengan nama registry Docker Anda jika digunakan
+        DOCKER_REGISTRY = ''
     }
 
     stages {
         stage('Clone Repository') {
             steps {
+                // Checkout repositori dari GitHub
                 checkout([$class: 'GitSCM',
-                          branches: [[name: 'main']],
-                          userRemoteConfigs: [[url: 'https://github.com/username/sample-node-app.git']]
+                          branches: [[name: '*/main']],
+                          userRemoteConfigs: [[url: 'https://github.com/adhie16/sample-node-app.git']]
                 ])
             }
         }
-        
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerImage = docker.build(imageName)
-                    dockerImage.push()
-                }
-            }
-        }
-
-        stage('Save and Load Docker Image Locally') {
-            steps {
-                script {
-                    docker.image(imageName).save("${imageName}_${env.BUILD_ID}.tar")
-                    sshagent(credentials: [sshCredentials]) {
-                        sh "scp ${imageName}_${env.BUILD_ID}.tar ${remoteServer}:~/"
+                    // Build image Docker
+                    def dockerImage = docker.build("nginx-app:${env.BUILD_ID}")
+                    // Push image ke registry Docker jika diperlukan
+                    docker.withRegistry('', 'docker-credentials') {
+                        dockerImage.push()
                     }
-                    sh "rm ${imageName}_${env.BUILD_ID}.tar"
                 }
             }
         }
@@ -41,11 +35,12 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 script {
-                    sshagent(credentials: [sshCredentials]) {
-                        sh "ssh ${remoteServer} 'docker load -i ~/${imageName}_${env.BUILD_ID}.tar'"
-                        sh "ssh ${remoteServer} 'docker stop ${imageName} || true'"
-                        sh "ssh ${remoteServer} 'docker rm ${imageName} || true'"
-                        sh "ssh ${remoteServer} 'docker run -d -p 3000:3000 --name ${imageName} ${imageName}:${env.BUILD_ID}'"
+                    // Deploy image Docker ke server dengan SSH
+                    sshagent(credentials: ['${SSH_CREDENTIALS}']) {
+                        sh "ssh cws@192.168.5.7 'docker pull nginx-app:${env.BUILD_ID}'"
+                        sh "ssh cws@192.168.5.7 'docker stop nginx-container || true'"
+                        sh "ssh cws@192.168.5.7 'docker rm nginx-container || true'"
+                        sh "ssh cws@192.168.5.7 'docker run -d -p 80:80 --name nginx-container nginx-app:${env.BUILD_ID}'"
                     }
                 }
             }
