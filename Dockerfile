@@ -1,19 +1,14 @@
-# Dockerfile untuk aplikasi Node.js
+# Dockerfile untuk aplikasi Nginx
 
-# Menggunakan Node.js LTS (Long-Term Support) sebagai base image
-FROM node:lts
+# Menggunakan Nginx sebagai base image
+FROM nginx
 
-# Menetapkan direktori kerja di dalam kontainer Docker
-WORKDIR /app
+# Menyalin konfigurasi Nginx dan file static ke dalam image
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY index.html /usr/share/nginx/html/index.html
 
-# Menyalin file package.json dan package-lock.json (jika ada) ke dalam direktori kerja (/app)
-COPY package*.json ./
+# Expose port 80 untuk mengakses Nginx
+EXPOSE 80
 
-# Menginstal dependencies yang diperlukan
-RUN npm install
-
-# Menyalin semua file dari direktori saat ini ke dalam direktori kerja (/app) di dalam image Docker
-COPY . .
-
-# Menetapkan perintah default yang akan dijalankan ketika kontainer berdasarkan image ini dimulai
-CMD ["node", "app.js"]
+# Perintah default yang akan dijalankan ketika kontainer berdasarkan image ini dimulai
+CMD ["nginx", "-g", "daemon off;"]
