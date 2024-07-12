@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']],
+                          branches: [[name: 'main']],
                           userRemoteConfigs: [[url: 'https://github.com/adhie16/sample-node-app.git']]
                 ])
             }
