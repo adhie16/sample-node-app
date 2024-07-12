@@ -4,8 +4,6 @@ pipeline {
     environment {
         // Sesuaikan dengan nama credentials SSH yang sudah ditambahkan di Jenkins
         SSH_CREDENTIALS = 'bf91efde-9f23-4abf-af9d-720fd184a424'
-        // Sesuaikan dengan nama registry Docker Anda jika digunakan
-        DOCKER_REGISTRY = ''
     }
 
     stages {
